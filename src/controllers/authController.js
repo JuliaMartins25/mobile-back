@@ -4,10 +4,10 @@ import jwt from "jsonwebtoken";
 
 class AuthController {
   // Listar todos os usuários
-  async getAllUsers(req, res) {
+  async getAllprofile(req, res) {
     try {
-      const users = await UserModel.findAll();
-      res.json(users);
+      const profiles = await UserModel.findAll();
+      res.json(profiles);
     } catch (error) {
       console.error("Erro ao listar usuários:", error);
       res.status(500).json({ error: "Erro ao listar usuários" });
@@ -17,7 +17,7 @@ class AuthController {
   // Registrar novo usuário
   async register(req, res) {
     try {
-      const { name, email, password } = req.body;
+      const { name, email, password, biography, avatar } = req.body;
 
       // Validação básica
       if (!name || !email || !password) {
@@ -27,8 +27,8 @@ class AuthController {
       }
 
       // Verificar se o usuário já existe
-      const userExists = await UserModel.findByEmail(email);
-      if (userExists) {
+      const profileExists = await UserModel.findByEmail(email);
+      if (profileExists) {
         return res.status(400).json({ error: "Este email já está em uso!" });
       }
 
@@ -40,14 +40,16 @@ class AuthController {
         name,
         email,
         password: hashedPassword,
+        biography,
+        avatar,
       };
 
       // Criar usuário
-      const user = await UserModel.create(data);
+      const profile = await UserModel.create(data);
 
       return res.status(201).json({
         message: "Usuário criado com sucesso!",
-        user,
+        profile,
       });
     } catch (error) {
       console.error("Erro ao criar um novo usuário: ", error);
@@ -67,15 +69,15 @@ class AuthController {
       }
 
       // Verificar se o usuário existe
-      const userExists = await UserModel.findByEmail(email);
-      if (!userExists) {
+      const profileExists = await UserModel.findByEmail(email);
+      if (!profileExists) {
         return res.status(401).json({ error: "Credenciais inválidas!" });
       }
 
       // Verificar senha
       const isPasswordValid = await bcrypt.compare(
         password,
-        userExists.password
+        profileExists.password
       );
       if (!isPasswordValid) {
         return res.status(401).json({ error: "Credenciais inválidas!" });
@@ -84,9 +86,9 @@ class AuthController {
       // Gerar Token JWT
       const token = jwt.sign(
         {
-          id: userExists.id,
-          name: userExists.name,
-          email: userExists.email,
+          id: profileExists.id,
+          name: profileExists.name,
+          email: profileExists.email,
         },
         process.env.JWT_SECRET,
         {
@@ -97,7 +99,7 @@ class AuthController {
       return res.json({
         message: "Login realizado com sucesso!",
         token,
-        userExists,
+        profileExists,
       });
     } catch (error) {
       console.error("Erro ao fazer login: ", error);

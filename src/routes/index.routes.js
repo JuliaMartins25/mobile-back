@@ -22,4 +22,5 @@ router.use("/personagens", personagensRouter);
 router.use("/collections", collectionRouter);
 router.use("/cards", cardRouter);
 
+
 export default router;
