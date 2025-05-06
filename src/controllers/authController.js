@@ -1,4 +1,4 @@
-import UserModel from "../models/userModel.js";
+import ProfileModel from "../models/profileModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -6,11 +6,28 @@ class AuthController {
   // Listar todos os usuários
   async getAllprofile(req, res) {
     try {
-      const profiles = await UserModel.findAll();
+      const profiles = await ProfileModel.findAll();
       res.json(profiles);
     } catch (error) {
       console.error("Erro ao listar usuários:", error);
       res.status(500).json({ error: "Erro ao listar usuários" });
+    }
+  }
+
+  // Listar perfil por ID
+  async getProfileById(req, res) {
+    try {
+      const { id } = req.params;
+      const profile = await ProfileModel.findById(id);
+
+      if (!profile) {
+        return res.status(404).json({ error: "Perfil não encontrado!" });
+      }
+
+      res.json(profile);
+    } catch (error) {
+      console.error("Erro ao listar perfil:", error);
+      res.status(500).json({ error: "Erro ao listar perfil" });
     }
   }
 
@@ -26,8 +43,15 @@ class AuthController {
           .json({ error: "Os campos nome, email e senha são obrigatórios!" });
       }
 
+      // Validação da imagem do avatar
+      if (avatar && !avatar.endsWith(".png") && !avatar.endsWith(".jpg") && !avatar.endsWith(".jpeg")) {
+        return res
+          .status(400)
+          .json({ error: "O avatar deve ser uma imagem PNG, JPG ou JPEG!" });
+      }
+
       // Verificar se o usuário já existe
-      const profileExists = await UserModel.findByEmail(email);
+      const profileExists = await ProfileModel.findByEmail(email);
       if (profileExists) {
         return res.status(400).json({ error: "Este email já está em uso!" });
       }
@@ -44,8 +68,8 @@ class AuthController {
         avatar,
       };
 
-      // Criar usuário
-      const profile = await UserModel.create(data);
+      // Criar perfil
+      const profile = await ProfileModel.create(data);
 
       return res.status(201).json({
         message: "Usuário criado com sucesso!",
@@ -68,8 +92,8 @@ class AuthController {
           .json({ error: "Os campos email e senha são obrigatórios!" });
       }
 
-      // Verificar se o usuário existe
-      const profileExists = await UserModel.findByEmail(email);
+      // Verificar se o perfil existe
+      const profileExists = await ProfileModel.findByEmail(email);
       if (!profileExists) {
         return res.status(401).json({ error: "Credenciais inválidas!" });
       }
