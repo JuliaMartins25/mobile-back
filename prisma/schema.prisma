@@ -13,70 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Anime {
-  id          Int     @id @default(autoincrement())
-  title       String
-  description String?
-  episodes    Int
-  releaseYear Int
-  studio      String
-  genres      String
-  rating      Float
-  imageUrl    String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("animes")
-}
-
-model Personagem {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-  age         Int
-  power       Boolean
-  anime       String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("personagens")
-}
-
-model Collection {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
-  description String?
-  releaseYear Int
-
-  // Segundo: marcação da lista de dados da tabela dependente
-  cards Card[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("collections")
-}
-
-model Card {
-  id            Int     @id @default(autoincrement())
-  name          String  @unique
-  rarity        String
-  attackPoints  Int
-  defensePoints Int
-  imageUrl      String?
-
-  // Primeiro: configuração da tabela dependente
-  collectionId Int
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("cards")
-}
-
 model Profile {
   id       Int    @id @default(autoincrement())
   name     String
@@ -89,5 +25,22 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+gallerys Gallery[]
+
   @@map("profiles")
+}
+
+model Gallery {
+  id String @id @default(cuid())
+  pictures String?
+  profileId Int 
+
+  profile Profile @relation(fields: [profileId], references: [id],  onDelete: Cascade, onUpdate: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  @@map("gallerys")
+
 }
